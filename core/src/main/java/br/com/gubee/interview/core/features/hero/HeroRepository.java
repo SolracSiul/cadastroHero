@@ -34,14 +34,19 @@ public class HeroRepository {
     }
 
 
-    List<Hero> listarTudo(){
+    List<Hero> listarTudo() {
         return namedParameterJdbcTemplate.query(
                 LISTAR_HERO_QUERY,
                 (obj, linha) ->
                         new Hero(
-                            obj.getObject("id"),
-                              obj.getString("name"),
-                        ));
+                                (UUID) obj.getObject("id"),
+                                obj.getString("name"),
+                                null,
+                                (UUID) obj.getObject("powerStatsId"),
+                                obj.getTimestamp("createdAt").toInstant(),
+                                obj.getTimestamp("updatedAt").toInstant(),
+                                obj.getBoolean("enabled")
+                                ));
     }
 }
 
