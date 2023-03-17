@@ -31,4 +31,7 @@ public class Hero {
         this.race = createHeroRequest.getRace();
         this.powerStatsId = powerStatsId;
     }
+
+
+
 }

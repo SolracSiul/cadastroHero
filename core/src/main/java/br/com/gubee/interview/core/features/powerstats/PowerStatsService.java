@@ -17,4 +17,18 @@ public class PowerStatsService {
     public UUID create(PowerStats powerStats) {
         return powerStatsRepository.create(powerStats);
     }
+
+
+
+    public PowerStats buscarPorId(UUID id){
+        return powerStatsRepository.buscarPorId(id);
+
+    }
+    public PowerStats atualizar(PowerStats powerStats){
+        return powerStatsRepository.atualizar(powerStats);
+
+    }
 }
+
+
+

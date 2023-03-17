@@ -31,4 +31,11 @@ public class PowerStats {
         this.dexterity = createHeroRequest.getDexterity();
         this.intelligence = createHeroRequest.getIntelligence();
     }
+
+    public PowerStats(int strength,int agility,int dexterity,int intelligence) {
+        this.strength = strength;
+        this.agility = agility;
+        this.dexterity = dexterity;
+        this.intelligence = intelligence;
+    }
 }

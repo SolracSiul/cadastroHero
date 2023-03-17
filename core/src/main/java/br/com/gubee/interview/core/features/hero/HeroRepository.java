@@ -1,10 +1,16 @@
 package br.com.gubee.interview.core.features.hero;
 
+import br.com.gubee.interview.core.features.powerstats.PowerStatsRowMapper;
 import br.com.gubee.interview.model.Hero;
+import br.com.gubee.interview.model.PowerStats;
+import br.com.gubee.interview.model.enums.Race;
+import br.com.gubee.interview.model.request.CreateHeroRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,7 +26,17 @@ public class HeroRepository {
 
     private static final String LISTAR_HERO_QUERY = "SELECT * from hero";
 
+    private static final String GET_ID_LISTAR_HERO_QUERY_QUERY = "SELECT * FROM hero where id = :id";
+
+    private static final String GET_BUSCA_HERO_NOME_QUERY_QUERY = "SELECT * FROM hero WHERE name LIKE :nameBuscado";
+
+    private static final String UPDATE_HERO_QUERY = "UPDATE hero"
+            + " SET name = :name, race = :race, updated_at = :updatedAt"
+            +  " WHERE id = :id RETURNING *";
+
+
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
 
     UUID create(Hero hero) {
         final Map<String, Object> params = Map.of("name", hero.getName(),
@@ -36,18 +52,34 @@ public class HeroRepository {
 
     List<Hero> listarTudo() {
         return namedParameterJdbcTemplate.query(
-                LISTAR_HERO_QUERY,
-                (obj, linha) ->
-                        new Hero(
-                                (UUID) obj.getObject("id"),
-                                obj.getString("name"),
-                                null,
-                                (UUID) obj.getObject("powerStatsId"),
-                                obj.getTimestamp("createdAt").toInstant(),
-                                obj.getTimestamp("updatedAt").toInstant(),
-                                obj.getBoolean("enabled")
-                                ));
+                LISTAR_HERO_QUERY,new HeroRowMapper());
     }
+
+
+    Hero buscarPorId(UUID id) {
+       try {
+           final Map<String, Object> params = Map.of("id", id);
+           return namedParameterJdbcTemplate.queryForObject(GET_ID_LISTAR_HERO_QUERY_QUERY, params,new HeroRowMapper());
+       }catch (Exception e){
+           return null;
+
+       }
+    };
+
+    List<Hero> buscarPorNome(String nome) {
+        final Map<String, Object> params = Map.of("nameBuscado", "%" + nome + "%");
+        return namedParameterJdbcTemplate.query(GET_BUSCA_HERO_NOME_QUERY_QUERY, params,new HeroRowMapper());
+
+    };
+
+    Hero atualizar(CreateHeroRequest hero,UUID id) {
+        final Map<String, Object> params = Map.of("id", id,
+                "name", hero.getName(),
+                "race", hero.getRace().name(),
+                "updatedAt", Timestamp.valueOf(LocalDate.now().atStartOfDay()));
+        return namedParameterJdbcTemplate.queryForObject(UPDATE_HERO_QUERY, params,new HeroRowMapper());
+    };
+
 }
 
 
