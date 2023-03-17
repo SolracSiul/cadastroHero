@@ -1,13 +1,13 @@
 package br.com.gubee.interview.core.features.hero;
 
-import br.com.gubee.interview.core.features.powerstats.PowerStatsRowMapper;
 import br.com.gubee.interview.model.Hero;
-import br.com.gubee.interview.model.PowerStats;
-import br.com.gubee.interview.model.enums.Race;
 import br.com.gubee.interview.model.request.CreateHeroRequest;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -34,6 +34,7 @@ public class HeroRepository {
             + " SET name = :name, race = :race, updated_at = :updatedAt"
             +  " WHERE id = :id RETURNING *";
 
+    private static final String DELETE_HERO_BY_ID = "DELETE FROM hero WHERE id = :id";
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
@@ -62,7 +63,6 @@ public class HeroRepository {
            return namedParameterJdbcTemplate.queryForObject(GET_ID_LISTAR_HERO_QUERY_QUERY, params,new HeroRowMapper());
        }catch (Exception e){
            return null;
-
        }
     };
 
@@ -80,6 +80,14 @@ public class HeroRepository {
         return namedParameterJdbcTemplate.queryForObject(UPDATE_HERO_QUERY, params,new HeroRowMapper());
     };
 
-}
+    public void deleteHeroById(UUID id) throws  ChangeSetPersister.NotFoundException {
+            try {
+                final Map<String, Object> params = Map.of("id", id);
+                namedParameterJdbcTemplate.update(DELETE_HERO_BY_ID, params);
+            } catch (Exception e) {
+                throw new ChangeSetPersister.NotFoundException();
+            }
+        }
+    }
 
 

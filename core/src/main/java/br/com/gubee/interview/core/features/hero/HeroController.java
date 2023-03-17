@@ -2,12 +2,15 @@ package br.com.gubee.interview.core.features.hero;
 
 import br.com.gubee.interview.model.Hero;
 import br.com.gubee.interview.model.request.CreateHeroRequest;
+import br.com.gubee.interview.model.request.HeroLutas;
 import br.com.gubee.interview.model.request.HeroResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.net.URI;
 import java.util.List;
@@ -16,6 +19,7 @@ import java.util.UUID;
 import static java.lang.String.format;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.created;
+import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequiredArgsConstructor
@@ -64,4 +68,25 @@ public class HeroController {
             return ResponseEntity.ok(hero);
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteHeroById(@PathVariable UUID id){
+        try {
+            heroService.deleteHeroById(id);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("comparar/{id1}/{id2}")
+    public ResponseEntity<HeroLutas> comparar(@PathVariable UUID id1, @PathVariable UUID id2){
+       HeroLutas hero = heroService.comparar(id1, id2);
+       if(hero == null){
+           return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+       }else{
+           return new ResponseEntity<HeroLutas>(hero, HttpStatus.OK);
+       }
+    }
+
 }
